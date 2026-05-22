@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Item</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Add New Item</h2>
+
+    <form id="itemForm">
+        <input type="text" id="title" placeholder="Item Title" required>
+        <textarea id="description" placeholder="Description"></textarea>
+        <input type="text" id="category" placeholder="Category" required>
+        <input type="text" id="exchangeFor" placeholder="Wanted in Exchange" required>
+
+        <button type="submit">Post Item</button>
+    </form>
+</div>
+
+<script>
+const form = document.getElementById("itemForm");
+
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+
+    const response = await fetch("http://localhost:5000/api/items/create", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json","Authorization": token
+        },
+        body: JSON.stringify({
+            title: title.value,
+            description: description.value,
+            category: category.value,
+            exchangeFor: exchangeFor.value
+        })
+    });
+
+    const data = await response.json();
+
+    if (response.status === 201) {
+        alert("Item added successfully");
+        window.location.href = "dashboard.html";
+    } else {
+        alert(data.message);
+    }
+});
+</script>
+
+</body>
+</html>
