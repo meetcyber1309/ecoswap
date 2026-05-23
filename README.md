@@ -1,4 +1,4 @@
-# Neighbor Trade App
+Eco-swap app
 
 A localized barter web application where neighbors can exchange household items and services.
 
