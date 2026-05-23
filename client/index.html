@@ -1,32 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoSwap</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ecoswap — Exchange Locally</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-    <h1>EcoSwap</h1>
-    <nav>
+  <!-- ── Navbar ─────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">🌿 Ecoswap</a>
+    <div class="navbar-links">
+
+      <!-- Shown when NOT logged in -->
+      <div id="nav-auth" style="display:flex;gap:6px">
         <a href="login.html">Login</a>
-        <a href="register.html">Register</a>
+        <a href="register.html" class="btn-nav-cta">Register</a>
+      </div>
+
+      <!-- Shown when logged in -->
+      <div id="nav-user" style="display:none;align-items:center;gap:4px">
         <a href="dashboard.html">Dashboard</a>
-    </nav>
-</header>
+        <span class="nav-username" id="nav-user-name"></span>
+        <button class="btn-nav-logout" id="logoutBtn">Logout</button>
+      </div>
 
-<section class="hero">
-    <h2>Exchange Goods and Services Locally</h2>
-    <p>Trade items without money and help your community.</p>
-</section>
+    </div>
+  </nav>
 
-<section>
-    <h2>Available Items</h2>
+  <!-- ── Hero ───────────────────────────────────────────── -->
+  <section class="hero">
+    <h2>Exchange Goods &amp; Services Locally</h2>
+    <p>Trade items with your neighbors — no money needed. Build community, reduce waste.</p>
+    <div class="hero-actions">
+      <a href="register.html" class="btn btn-primary">Get Started Free</a>
+      <a href="#listings"     class="btn btn-outline">Browse Listings</a>
+    </div>
+  </section>
+
+  <!-- ── Marketplace Feed ───────────────────────────────── -->
+  <div id="listings" class="section">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Available Listings</h2>
+        <p class="section-subtitle">Browse items your neighbors want to trade</p>
+      </div>
+      <a href="add-item.html" class="btn btn-primary">+ Post Item</a>
+    </div>
+
+    <!-- Populated dynamically by app.js → loadItems() -->
     <div id="itemsContainer"></div>
-</section>
+  </div>
 
-<script src="app.js"></script>
+  <!-- ── Footer ─────────────────────────────────────────── -->
+  <footer>
+    <p>© 2026 Ecoswap — Connecting Communities Through Trade</p>
+  </footer>
+
+  <script src="app.js"></script>
 </body>
 </html>

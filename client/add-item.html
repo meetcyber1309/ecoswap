@@ -1,55 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Add Item</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post Item — Neighbor Trade</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="form-page">
 
-<div class="form-container">
-    <h2>Add New Item</h2>
+  <!-- ── Navbar ─────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">🌿 Neighbor<span>Trade</span></a>
+    <div class="navbar-links">
+      <a href="dashboard.html">← Dashboard</a>
+      <button class="btn-nav-logout" id="logoutBtn">Logout</button>
+    </div>
+  </nav>
 
-    <form id="itemForm">
-        <input type="text" id="title" placeholder="Item Title" required>
-        <textarea id="description" placeholder="Description"></textarea>
-        <input type="text" id="category" placeholder="Category" required>
-        <input type="text" id="exchangeFor" placeholder="Wanted in Exchange" required>
+  <!-- ── Add Item Form ──────────────────────────────────── -->
+  <div class="form-container" style="max-width:520px">
+    <div class="form-header">
+      <h2>Post an Item</h2>
+      <p>List something you'd like to trade with your neighbors</p>
+    </div>
 
-        <button type="submit">Post Item</button>
-    </form>
-</div>
+    <div id="alertBox" class="alert" role="alert"></div>
 
-<script>
-const form = document.getElementById("itemForm");
+    <div class="form-group">
+      <label class="form-label" for="title">Item Title</label>
+      <input class="form-input" type="text" id="title"
+             placeholder="e.g. Vintage Bicycle" maxlength="100" required>
+    </div>
 
-form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+    <div class="form-group">
+      <label class="form-label" for="description">
+        Description <span style="font-weight:400;color:var(--clr-muted)">(optional)</span>
+      </label>
+      <textarea class="form-input" id="description" rows="4"
+                placeholder="Describe your item — condition, size, any important details…"></textarea>
+    </div>
 
-    const token = localStorage.getItem("token");
+    <div class="form-group">
+      <label class="form-label" for="category">Category</label>
+      <select class="form-input" id="category" required>
+        <option value="" disabled selected>Select a category</option>
+        <option value="Electronics">Electronics</option>
+        <option value="Furniture">Furniture</option>
+        <option value="Clothing">Clothing</option>
+        <option value="Books">Books</option>
+        <option value="Kitchen">Kitchen</option>
+        <option value="Garden">Garden</option>
+        <option value="Toys & Games">Toys &amp; Games</option>
+        <option value="Tools">Tools</option>
+        <option value="Sports">Sports</option>
+        <option value="Services">Services</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
 
-    const response = await fetch("http://localhost:5000/api/items/create", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json","Authorization": token
-        },
-        body: JSON.stringify({
-            title: title.value,
-            description: description.value,
-            category: category.value,
-            exchangeFor: exchangeFor.value
-        })
-    });
+    <div class="form-group">
+      <label class="form-label" for="exchangeFor">What do you want in exchange?</label>
+      <input class="form-input" type="text" id="exchangeFor"
+             placeholder="e.g. Cooking lessons, garden tools, baby clothes…" required>
+    </div>
 
-    const data = await response.json();
+    <button class="btn btn-primary btn-full" id="submitBtn">Post Listing</button>
+  </div>
 
-    if (response.status === 201) {
-        alert("Item added successfully");
-        window.location.href = "dashboard.html";
-    } else {
-        alert(data.message);
+  <script src="app.js"></script>
+  <script>
+    // Auth guard
+    if (!auth.isLoggedIn()) window.location.replace("login.html");
+
+    function showAlert(message, type) {
+      const box = document.getElementById("alertBox");
+      box.textContent = message;
+      box.className = `alert alert-${type} show`;
     }
-});
-</script>
 
+    async function handleSubmit() {
+      const title       = document.getElementById("title").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const category    = document.getElementById("category").value;
+      const exchangeFor = document.getElementById("exchangeFor").value.trim();
+      const btn         = document.getElementById("submitBtn");
+
+      // Client-side validation
+      if (!title || !category || !exchangeFor) {
+        showAlert("Please fill in all required fields.", "error"); return;
+      }
+
+      btn.disabled    = true;
+      btn.textContent = "Posting…";
+
+      try {
+        const res = await fetch(`${API_BASE}/items/create`, {
+          method: "POST",
+          headers: {
+            "Content-Type":  "application/json",
+            "Authorization": `Bearer ${auth.getToken()}`   // ← standard Bearer format
+          },
+          body: JSON.stringify({ title, description, category, exchangeFor })
+        });
+        const data = await res.json();
+
+        if (res.status === 201) {
+          showToast("Listing posted successfully!", "success");
+          setTimeout(() => window.location.href = "dashboard.html", 900);
+        } else {
+          showAlert(data.message || "Failed to post listing.", "error");
+          btn.disabled    = false;
+          btn.textContent = "Post Listing";
+        }
+      } catch {
+        showAlert("Network error. Is the server running?", "error");
+        btn.disabled    = false;
+        btn.textContent = "Post Listing";
+      }
+    }
+
+    document.getElementById("submitBtn").addEventListener("click", handleSubmit);
+  </script>
 </body>
 </html>

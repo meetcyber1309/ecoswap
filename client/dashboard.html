@@ -1,18 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Eco swap</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<header>
-    <h1>Dashboard</h1>
-    <a href="add-item.html">Add Item</a>
-</header>
+  <!-- ── Navbar ─────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">🌿 Ecoswap</a>
+    <div class="navbar-links">
+      <a href="index.html">Browse All</a>
+      <a href="add-item.html" class="btn-nav-cta">+ Post Item</a>
+      <span class="nav-username" id="nav-user-name"></span>
+      <button class="btn-nav-logout" id="logoutBtn">Logout</button>
+    </div>
+  </nav>
 
-<div id="itemsContainer"></div>
+  <!-- ── Dashboard Banner ───────────────────────────────── -->
+  <div class="dashboard-banner">
+    <div class="dashboard-inner">
+      <div>
+        <h2 id="welcomeMsg">Welcome back!</h2>
+        <p>Manage your listings and track your trades</p>
+      </div>
+      <a href="add-item.html" class="btn btn-primary">+ Post New Item</a>
+    </div>
+  </div>
 
-<script src="app.js"></script>
+  <!-- ── Content ────────────────────────────────────────── -->
+  <div class="section">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-number" id="myItemsCount">—</div>
+        <div class="stat-label">Active Listings</div>
+      </div>
+    </div>
+
+    <!-- My Listings -->
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Your Listings</h2>
+        <p class="section-subtitle">Items you've posted for trade</p>
+      </div>
+    </div>
+
+    <!-- Populated by app.js → loadMyItems() -->
+    <div id="myItemsContainer"></div>
+
+  </div>
+
+  <!-- ── Footer ─────────────────────────────────────────── -->
+  <footer>
+    <p>© 2026 Ecoswap — Connecting Communities Through Trade</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Auth guard — must run before DOM manipulation
+    if (!auth.isLoggedIn()) window.location.replace("login.html");
+
+    // Personalise the welcome message and navbar username
+    const user = auth.getUser();
+    if (user) {
+      document.getElementById("welcomeMsg").textContent = `Welcome back, ${user.name}!`;
+      const nameEl = document.getElementById("nav-user-name");
+      if (nameEl) nameEl.textContent = user.name;
+    }
+    // loadMyItems() is triggered automatically by app.js DOMContentLoaded
+  </script>
 </body>
 </html>

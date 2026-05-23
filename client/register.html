@@ -1,57 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Register</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register — Ecoswap</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="form-page">
 
-<div class="form-container">
-    <h2>Register</h2>
+  <!-- ── Navbar ─────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">🌿 Ecoswap</a>
+    <div class="navbar-links">
+      <a href="index.html">Home</a>
+      <a href="login.html">Login</a>
+    </div>
+  </nav>
 
-    <form id="registerForm">
-        <input type="text" id="name" placeholder="Full Name" required>
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <input type="text" id="suburb" placeholder="Suburb" required>
+  <!-- ── Register Form ──────────────────────────────────── -->
+  <div class="form-container">
+    <div class="form-header">
+      <h2>Create Account</h2>
+      <p>Join your local trading community today</p>
+    </div>
 
-        <button type="submit">Register</button>
-    </form>
-</div>
+    <div id="alertBox" class="alert" role="alert"></div>
 
-<script>
-const form = document.getElementById("registerForm");
+    <div class="form-group">
+      <label class="form-label" for="name">Full Name</label>
+      <input class="form-input" type="text" id="name" placeholder="Jane Smith" autocomplete="name" required>
+    </div>
 
-form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+    <div class="form-group">
+      <label class="form-label" for="email">Email Address</label>
+      <input class="form-input" type="email" id="email" placeholder="you@example.com" autocomplete="email" required>
+    </div>
 
-    const nameValue = document.getElementById("name").value;
-    const emailValue = document.getElementById("email").value;
-    const passwordValue = document.getElementById("password").value;
-    const suburbValue = document.getElementById("suburb").value;
+    <div class="form-group">
+      <label class="form-label" for="password">Password <span style="font-weight:400;color:var(--clr-muted)">(min. 6 characters)</span></label>
+      <input class="form-input" type="password" id="password" placeholder="Choose a strong password" autocomplete="new-password" required>
+    </div>
 
-    const response = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            name: nameValue,
-            email: emailValue,
-            password: passwordValue,
-            suburb: suburbValue
-        })
-    });
+    <div class="form-group">
+      <label class="form-label" for="suburb">Suburb / Neighborhood</label>
+      <input class="form-input" type="text" id="suburb" placeholder="e.g. Brooklyn Heights" required>
+    </div>
 
-    const data = await response.json();
+    <button class="btn btn-primary btn-full" id="registerBtn">Create Account</button>
 
-    alert(data.message);
+    <div class="form-footer">
+      Already have an account? <a href="login.html">Login here</a>
+    </div>
+  </div>
 
-    if (response.status === 201) {
-        window.location.href = "login.html";
+  <script src="app.js"></script>
+  <script>
+    // Redirect away if already logged in
+    if (auth.isLoggedIn()) window.location.replace("dashboard.html");
+
+    function showAlert(message, type) {
+      const box = document.getElementById("alertBox");
+      box.textContent = message;
+      box.className = `alert alert-${type} show`;
     }
-});
-</script>
 
+    async function handleRegister() {
+      const name     = document.getElementById("name").value.trim();
+      const email    = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      const suburb   = document.getElementById("suburb").value.trim();
+      const btn      = document.getElementById("registerBtn");
+
+      // Client-side validation
+      if (!name || !email || !password || !suburb) {
+        showAlert("Please fill in all fields.", "error"); return;
+      }
+      if (name.length < 2) {
+        showAlert("Name must be at least 2 characters.", "error"); return;
+      }
+      if (password.length < 6) {
+        showAlert("Password must be at least 6 characters.", "error"); return;
+      }
+
+      btn.disabled    = true;
+      btn.textContent = "Creating account…";
+
+      try {
+        const res  = await fetch(`${API_BASE}/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password, suburb })
+        });
+        const data = await res.json();
+
+        if (res.status === 201) {
+          showToast("Account created! Redirecting to login…", "success");
+          setTimeout(() => window.location.href = "login.html", 1200);
+        } else {
+          showAlert(data.message || "Registration failed.", "error");
+          btn.disabled    = false;
+          btn.textContent = "Create Account";
+        }
+      } catch {
+        showAlert("Network error. Is the server running?", "error");
+        btn.disabled    = false;
+        btn.textContent = "Create Account";
+      }
+    }
+
+    document.getElementById("registerBtn").addEventListener("click", handleRegister);
+  </script>
 </body>
 </html>
