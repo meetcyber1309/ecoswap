@@ -19,4 +19,7 @@ Clone the repository.
 Install dependencies.
 
 ```bash
-npm install
+npm install express
+
+```bash
+npm run dev
