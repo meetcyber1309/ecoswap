@@ -17,9 +17,7 @@ Clone the repository.
 
 ### Step 2
 Install dependencies.
-
-```bash
 npm install express
 
-```bash
+step 3 - to runn the application
 npm run dev
