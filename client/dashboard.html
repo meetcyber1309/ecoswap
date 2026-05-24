@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard — Eco swap</title>
+  <title>Dashboard — Ecoswap</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -33,11 +33,15 @@
   <!-- ── Content ────────────────────────────────────────── -->
   <div class="section">
 
-    <!-- Stats -->
+    <!-- Stats Row -->
     <div class="stats-row">
       <div class="stat-card">
         <div class="stat-number" id="myItemsCount">—</div>
-        <div class="stat-label">Active Listings</div>
+        <div class="stat-label">Total Listings</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="myTradedCount">—</div>
+        <div class="stat-label">Successfully Traded</div>
       </div>
     </div>
 
@@ -45,33 +49,26 @@
     <div class="section-header">
       <div>
         <h2 class="section-title">Your Listings</h2>
-        <p class="section-subtitle">Items you've posted for trade</p>
+        <p class="section-subtitle">Edit, mark as traded, or delete your items</p>
       </div>
     </div>
 
-    <!-- Populated by app.js → loadMyItems() -->
     <div id="myItemsContainer"></div>
-
   </div>
 
-  <!-- ── Footer ─────────────────────────────────────────── -->
   <footer>
     <p>© 2026 Ecoswap — Connecting Communities Through Trade</p>
   </footer>
 
   <script src="app.js"></script>
   <script>
-    // Auth guard — must run before DOM manipulation
     if (!auth.isLoggedIn()) window.location.replace("login.html");
-
-    // Personalise the welcome message and navbar username
     const user = auth.getUser();
     if (user) {
       document.getElementById("welcomeMsg").textContent = `Welcome back, ${user.name}!`;
       const nameEl = document.getElementById("nav-user-name");
       if (nameEl) nameEl.textContent = user.name;
     }
-    // loadMyItems() is triggered automatically by app.js DOMContentLoaded
   </script>
 </body>
 </html>

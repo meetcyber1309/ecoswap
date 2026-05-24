@@ -12,20 +12,15 @@
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">🌿 Ecoswap</a>
     <div class="navbar-links">
-
-      <!-- Shown when NOT logged in -->
       <div id="nav-auth" style="display:flex;gap:6px">
         <a href="login.html">Login</a>
         <a href="register.html" class="btn-nav-cta">Register</a>
       </div>
-
-      <!-- Shown when logged in -->
       <div id="nav-user" style="display:none;align-items:center;gap:4px">
         <a href="dashboard.html">Dashboard</a>
         <span class="nav-username" id="nav-user-name"></span>
         <button class="btn-nav-logout" id="logoutBtn">Logout</button>
       </div>
-
     </div>
   </nav>
 
@@ -44,13 +39,28 @@
     <div class="section-header">
       <div>
         <h2 class="section-title">Available Listings</h2>
-        <p class="section-subtitle">Browse items your neighbors want to trade</p>
+        <p class="section-subtitle" id="resultsCount">Loading…</p>
       </div>
       <a href="add-item.html" class="btn btn-primary">+ Post Item</a>
     </div>
 
-    <!-- Populated dynamically by app.js → loadItems() -->
-    <div id="itemsContainer"></div>
+    <!-- FEATURE 1: Search Bar -->
+    <div class="search-bar-wrap">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        id="searchInput"
+        class="search-input"
+        placeholder="Search by title, description, category…"
+        autocomplete="off"
+      />
+    </div>
+
+    <!-- FEATURE 2: Category Pills -->
+    <div id="categoryPills" class="pills-row"></div>
+
+    <!-- Item Grid — populated by app.js -->
+    <div id="itemsContainer" style="margin-top:24px"></div>
   </div>
 
   <!-- ── Footer ─────────────────────────────────────────── -->

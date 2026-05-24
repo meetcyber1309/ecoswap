@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Listing — Ecoswap</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="form-page">
+
+  <!-- ── Navbar ─────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">🌿 Ecoswap</a>
+    <div class="navbar-links">
+      <a href="dashboard.html">← Dashboard</a>
+      <button class="btn-nav-logout" id="logoutBtn">Logout</button>
+    </div>
+  </nav>
+
+  <!-- ── Edit Form ──────────────────────────────────────── -->
+  <div class="form-container" style="max-width:520px">
+    <div class="form-header">
+      <h2>Edit Listing</h2>
+      <p>Update the details of your item</p>
+    </div>
+
+    <div id="alertBox" class="alert" role="alert"></div>
+
+    <!-- Loading state while fetching item -->
+    <div id="formLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading listing…</p>
+    </div>
+
+    <!-- Form (hidden until item loads) -->
+    <div id="editForm" style="display:none">
+      <div class="form-group">
+        <label class="form-label" for="title">Item Title</label>
+        <input class="form-input" type="text" id="title" maxlength="100" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="description">
+          Description <span style="font-weight:400;color:var(--clr-muted)">(optional)</span>
+        </label>
+        <textarea class="form-input" id="description" rows="4"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="category">Category</label>
+        <select class="form-input" id="category" required>
+          <option value="" disabled>Select a category</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Furniture">Furniture</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Books">Books</option>
+          <option value="Kitchen">Kitchen</option>
+          <option value="Garden">Garden</option>
+          <option value="Toys & Games">Toys &amp; Games</option>
+          <option value="Tools">Tools</option>
+          <option value="Sports">Sports</option>
+          <option value="Services">Services</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="exchangeFor">What do you want in exchange?</label>
+        <input class="form-input" type="text" id="exchangeFor" required>
+      </div>
+
+      <div style="display:flex;gap:12px">
+        <a href="dashboard.html" class="btn btn-outline-dark" style="flex:1;text-align:center;padding:11px">Cancel</a>
+        <button class="btn btn-primary" id="saveBtn" style="flex:2">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    if (!auth.isLoggedIn()) window.location.replace("login.html");
+
+    const itemId = new URLSearchParams(window.location.search).get("id");
+    if (!itemId) window.location.replace("dashboard.html");
+
+    function showAlert(message, type) {
+      const box = document.getElementById("alertBox");
+      box.textContent = message;
+      box.className = `alert alert-${type} show`;
+    }
+
+    // ── Load existing item data into the form ─────────────────────────────────
+    async function loadItem() {
+      try {
+        const res  = await fetch(`${API_BASE}/items/${itemId}`);
+        const item = await res.json();
+
+        if (!res.ok) { showAlert(item.message || "Could not load item.", "error"); return; }
+
+        // Pre-fill form
+        document.getElementById("title").value       = item.title;
+        document.getElementById("description").value = item.description || "";
+        document.getElementById("exchangeFor").value = item.exchangeFor;
+
+        // Set the correct category option
+        const catSelect = document.getElementById("category");
+        [...catSelect.options].forEach(opt => {
+          if (opt.value === item.category) opt.selected = true;
+        });
+
+        document.getElementById("formLoading").style.display = "none";
+        document.getElementById("editForm").style.display    = "block";
+
+      } catch {
+        showAlert("Network error. Could not load listing.", "error");
+      }
+    }
+
+    // ── Save updated item ─────────────────────────────────────────────────────
+    async function handleSave() {
+      const title       = document.getElementById("title").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const category    = document.getElementById("category").value;
+      const exchangeFor = document.getElementById("exchangeFor").value.trim();
+      const btn         = document.getElementById("saveBtn");
+
+      if (!title || !category || !exchangeFor) {
+        showAlert("Please fill in all required fields.", "error"); return;
+      }
+
+      btn.disabled    = true;
+      btn.textContent = "Saving…";
+
+      try {
+        const res = await fetch(`${API_BASE}/items/${itemId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type":  "application/json",
+            Authorization:   `Bearer ${auth.getToken()}`
+          },
+          body: JSON.stringify({ title, description, category, exchangeFor })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          showToast("Listing updated successfully!", "success");
+          setTimeout(() => window.location.href = "dashboard.html", 900);
+        } else {
+          showAlert(data.message || "Failed to save changes.", "error");
+          btn.disabled    = false;
+          btn.textContent = "Save Changes";
+        }
+      } catch {
+        showAlert("Network error. Please try again.", "error");
+        btn.disabled    = false;
+        btn.textContent = "Save Changes";
+      }
+    }
+
+    document.getElementById("saveBtn").addEventListener("click", handleSave);
+    loadItem();
+  </script>
+</body>
+</html>

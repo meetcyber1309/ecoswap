@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listing — Ecoswap</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ── Navbar ─────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">🌿 Ecoswap</a>
+    <div class="navbar-links">
+      <div id="nav-auth" style="display:flex;gap:6px">
+        <a href="login.html">Login</a>
+        <a href="register.html" class="btn-nav-cta">Register</a>
+      </div>
+      <div id="nav-user" style="display:none;align-items:center;gap:4px">
+        <a href="dashboard.html">Dashboard</a>
+        <span class="nav-username" id="nav-user-name"></span>
+        <button class="btn-nav-logout" id="logoutBtn">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Detail Content ─────────────────────────────────── -->
+  <div class="section" style="max-width:720px">
+
+    <a href="index.html" class="back-link">← Back to listings</a>
+
+    <!-- Loading state -->
+    <div id="detailLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading listing…</p>
+    </div>
+
+    <!-- Detail card (hidden until loaded) -->
+    <div id="detailCard" class="detail-card" style="display:none">
+
+      <div class="detail-header">
+        <div>
+          <h1 id="detailTitle" class="detail-title"></h1>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:8px;flex-wrap:wrap">
+            <span id="detailBadge" class="item-badge"></span>
+            <span id="detailStatus" class="status-badge"></span>
+            <span id="detailDate" class="item-date"></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="detailDescription" class="detail-description"></div>
+
+      <div class="detail-exchange">
+        <h3>🔄 Looking to trade for</h3>
+        <p id="detailExchange"></p>
+      </div>
+
+      <div class="detail-owner">
+        <div class="owner-avatar" id="ownerAvatar"></div>
+        <div>
+          <div class="owner-name" id="ownerName"></div>
+          <div class="owner-suburb" id="ownerSuburb"></div>
+        </div>
+      </div>
+
+      <div class="detail-actions">
+        <a href="index.html" class="btn btn-outline-dark">← Browse More</a>
+        <a href="add-item.html" class="btn btn-primary">Post Your Own Item</a>
+      </div>
+    </div>
+
+    <!-- Error state -->
+    <div id="detailError" style="display:none" class="empty-state">
+      <div class="empty-state-icon">⚠️</div>
+      <h3>Listing not found</h3>
+      <p>This item may have been removed.</p>
+      <a href="index.html" class="btn btn-primary" style="margin-top:16px">Back to Marketplace</a>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 Ecoswap — Connecting Communities Through Trade</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    const itemId = new URLSearchParams(window.location.search).get("id");
+    if (!itemId) window.location.replace("index.html");
+
+    async function loadDetail() {
+      try {
+        const res  = await fetch(`${API_BASE}/items/${itemId}`);
+        const item = await res.json();
+
+        if (!res.ok) throw new Error(item.message || "Not found");
+
+        // Update page title
+        document.title = `${item.title} — Neighbor Trade`;
+
+        // Populate fields
+        document.getElementById("detailTitle").textContent    = item.title;
+        document.getElementById("detailBadge").textContent    = item.category;
+        document.getElementById("detailDate").textContent     = timeAgo(item.createdAt);
+        document.getElementById("detailExchange").textContent = item.exchangeFor;
+        document.getElementById("ownerName").textContent      = item.owner?.name || "Unknown";
+        document.getElementById("ownerSuburb").textContent    = item.owner?.suburb
+          ? `📍 ${item.owner.suburb}` : "";
+
+        // Avatar initials
+        const initials = (item.owner?.name || "?").split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
+        document.getElementById("ownerAvatar").textContent = initials;
+
+        // Description
+        const descEl = document.getElementById("detailDescription");
+        descEl.textContent = item.description || "";
+        if (!item.description) descEl.style.display = "none";
+
+        // Status badge
+        const statusEl = document.getElementById("detailStatus");
+        if (item.status === "traded") {
+          statusEl.textContent = "✅ Traded";
+          statusEl.className   = "status-badge status-badge--traded";
+        } else {
+          statusEl.textContent = "🟢 Available";
+          statusEl.className   = "status-badge status-badge--available";
+        }
+
+        document.getElementById("detailLoading").style.display = "none";
+        document.getElementById("detailCard").style.display    = "block";
+
+      } catch {
+        document.getElementById("detailLoading").style.display = "none";
+        document.getElementById("detailError").style.display   = "block";
+      }
+    }
+
+    loadDetail();
+  </script>
+</body>
+</html>
